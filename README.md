@@ -137,6 +137,6 @@ Each notebook can be run independently. Start with the baseline and then run the
 
 ## Technical presentation
 
-The [project presentation](Adaptive-Budget-Allocation-for-Online-Advertising.pptx) develops the work as a single engineering story: each stage introduces a new market constraint, diagnoses the resulting failure mode, and motivates a controlled algorithmic intervention. Its charts are generated from the current code and use English labels throughout.
+The [PowerPoint presentation](Adaptive-Budget-Allocation-for-Online-Advertising.pptx) develops the work as a single engineering story: each stage introduces a new market constraint, diagnoses the resulting failure mode, and motivates a controlled algorithmic intervention. Its charts are generated from the current code and use English labels throughout. A fixed-layout [PDF version](Adaptive-Budget-Allocation-for-Online-Advertising.pdf) is also available for quick viewing and sharing.
 
 **Authors:** Antonio Arbizzani Tonelli, Leonardo Arisi, Claudia Berra, Gaia Di Paolo.
