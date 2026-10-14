@@ -1,0 +1,4 @@
+# Optional notebook interface and Python kernel, including scientific dependencies.
+-r requirements.txt
+jupyterlab==4.6.4
+ipykernel==7.4.0

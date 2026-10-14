@@ -1,0 +1,6 @@
+# Direct scientific dependencies used by the eight notebooks.
+# Current compatible environment; not the historical experiment environment.
+numpy==2.5.4
+scipy==1.18.1
+pandas==3.0.6
+matplotlib==3.11.2

@@ -27,7 +27,7 @@ Locally generated presentation drafts, exports, previews, and build files are ex
 
 The saved notebook plots contain a mixture of English and Italian labels. Their outputs remain intact. The proposed draft can use summary charts transcribed from saved aggregates, with each chart linked to its source; such summaries would not recreate the original time-series curves.
 
-Dependency versions are not pinned in the source repository. The saved outputs support the reported values, but this revision does not claim that a new execution in a different environment would reproduce every value exactly. Historical presentation differences cannot be explained reliably from the recorded artifacts alone.
+The historical experiment environment was not recorded completely. A later dependency update adds pinned direct dependencies for a separately verified current environment, described in the [notebook guide](../notebooks/README.md#environment-and-kernel). It does not reconstruct the environment that produced the saved outputs or claim identical numerical results on a new execution. Historical presentation differences cannot be explained reliably from the recorded artifacts alone.
 
 The repository description and GitHub topics are outside this revision and are unchanged.
 
@@ -39,3 +39,11 @@ The repository description and GitHub topics are outside this revision and are u
 - Traced the documented results and ablations to saved tables or printed output. Checked the draft independently for both scenario pairs. This is static verification of recorded evidence, not a clean execution or new simulation.
 
 No algorithm tests, notebook execution or presentation rendering form part of this documentation-only publication. The redesigned deck and its PDF still require production and visual verification in the later design workflow.
+
+## Dependency setup update
+
+The dependency update starts from `main` at [86fe533](https://github.com/antonio-arbizzani-tonelli/adaptive-budget-allocation-online-learning/commit/86fe533c9d559a07238efc67d832141b31809556). It pins the four imported scientific packages separately from the optional JupyterLab/kernel tools. A clean CPython 3.12.14 environment on Windows 11 x64, with system packages excluded and pip 25.0.1, passed installation, `pip check`, import checks and the small operation tests listed in the [notebook guide](../notebooks/README.md#verification-and-reproduction-limits). The scientific checks passed both before and after installing notebook tools, and a temporary JupyterLab server and kernel passed startup checks.
+
+This is a current compatible setup, not a recovered historical environment. Only dependency files and documentation change in this update. No repository notebook cell, saved output, algorithm or presentation changes, and no campaign is rerun.
+
+The update also checks 68 relative documentation links and confirms unchanged Git object hashes for all eight notebooks and both presentation files against its starting commit. The published results section remains unchanged.

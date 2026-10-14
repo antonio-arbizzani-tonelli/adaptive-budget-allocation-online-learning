@@ -69,17 +69,33 @@ Baseline and revised runs share market realizations and corresponding random see
 
 The [notebook guide](notebooks/README.md) links all eight notebooks. Each contains its setup, generated auction data, and saved outputs; no external dataset or auction service is required.
 
-Create and activate a Python virtual environment, then install the scientific packages and JupyterLab:
+The current setup was verified with **CPython 3.12.14 on Windows 11 x64**. [requirements.txt](requirements.txt) pins the four scientific dependencies. [requirements-notebooks.txt](requirements-notebooks.txt) includes them and adds JupyterLab and the Python kernel.
 
-```bash
+Run from the repository root using a Python 3.12 interpreter. Check its version before creating the environment. The commands use the virtual environment's interpreter directly, so shell activation is unnecessary.
+
+Windows PowerShell:
+
+```powershell
+python --version
 python -m venv .venv
-# Activate: source .venv/bin/activate
-# Windows PowerShell: .venv\Scripts\Activate.ps1
-python -m pip install numpy scipy pandas matplotlib jupyterlab
-jupyter lab
+.\.venv\Scripts\python.exe -m pip install -r requirements-notebooks.txt
+.\.venv\Scripts\python.exe -m pip check
+.\.venv\Scripts\python.exe -m jupyterlab
 ```
 
-Run a baseline notebook before its revised counterpart to follow the comparison. Dependency versions are not pinned in this repository, so the saved outputs remain the reference for the reported results.
+macOS/Linux shell:
+
+```bash
+python3.12 --version
+python3.12 -m venv .venv
+.venv/bin/python -m pip install -r requirements-notebooks.txt
+.venv/bin/python -m pip check
+.venv/bin/python -m jupyterlab
+```
+
+If `python --version` on Windows is not 3.12, select a Python 3.12 interpreter before creating the environment. If you already have a notebook interface and Python kernel, use its Python executable to install only `-m pip install -r requirements.txt`. See the [notebook guide](notebooks/README.md#environment-and-kernel) for kernel selection and the checks performed.
+
+This is a newly verified compatible environment, not a reconstruction of the historical experiment environment. Direct dependencies are pinned; transitive dependencies are resolved by pip and are not fully locked. Installation, imports and small operation checks passed, but the campaigns were not rerun. The saved outputs remain the reference for published results: an installable environment does not guarantee identical numerical results. Other Python versions and operating systems have not been tested.
 
 ## Presentation
 
