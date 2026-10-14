@@ -1,30 +1,47 @@
-# Learning a Useful Bid Under a Hard Budget
+# Single campaign under a hard budget
 
-## Problem
+[Baseline: UCB policies](baseline_ucb.ipynb) · [Revision: budgeted KL-UCB](budget_aware_kl_ucb.ipynb) · [Project overview](../../README.md)
 
-We consider a single campaign lasting T = 5000 rounds, with budget B = 125 and valuation v = 0.6. At each round, a bid is selected from a discrete grid. The auction is first-price against three competitors with bids uniformly distributed in [0, 1]; the probability of winning with bid b is therefore b^3. If the auction is won, the reward is v - b and the cost is b. Bids above the valuation are excluded because they yield negative utility.
+## Problem and setup
 
-The benchmark is the stochastic clairvoyant, which knows the auction distribution and selects the bid distribution with maximum expected reward while satisfying the average cost constraint B/T. On this instance, its expected reward is about 0.0126 per round.
+A bidder selects one bid per round in a first-price auction. The campaign has 5,000 rounds, budget 125, and value 0.6 per win. Three competitors bid independently from Uniform[0, 1], so a bid $b$ wins with probability $b^3$. The playable grid is 0.0, 0.1, …, 0.6; bids above the valuation are excluded.
 
-## Baseline version
+The main comparison uses 10 paired trials. Both notebooks generate the same market paths with seed 20260517, and the budgeted policies use action seeds $20000+j$ for trial $j=0,\ldots,9$.
 
-The baseline compares two learners:
+The stochastic clairvoyant benchmark knows the true win probabilities and solves an LP over fixed bid distributions with expected cost at most $\rho=125/5000=0.025$ per round. It assigns about 3.4% to bid 0.3 and 96.6% to bid 0.4, yielding expected utility about 0.01264 per round. It knows the distribution, rather than future auction outcomes.
 
-- **Budget-blind UCB1**, which applies standard UCB1 to bids and stops when the budget is exhausted;
-- **Budgeted UCB**, which estimates each bid's mean reward and cost, builds a UCB and an LCB respectively, and uses an LP to select a bid distribution with estimated cost at most B/T.
+## Baseline
 
-The two algorithms obtain very similar results: final mean regret is about 40.2 for UCB1 and 39.6 for budgeted UCB. The confidence intervals for cost remain wide and their lower bound is often zero; consequently, the LP constraint is not very informative. Both learners exhaust the budget before the end of the horizon and obtain about 36% of the clairvoyant reward.
+Budget-blind UCB1 chooses bids from reward estimates. Budgeted UCB uses a reward upper confidence bound and a cost lower confidence bound in an LP, with a fixed spending cap $\rho$. Both baseline policies stop bidding when the remaining budget falls below 1, a conservative guard on this bid grid.
 
-## Improved version
+## Observed limitation
 
-The environment, benchmark, and UCB1 remain unchanged. The budgeted learner is modified in three ways:
+The Hoeffding cost lower bound often stays at zero, so the LP treats bids as cheaper than they are. The two policies stop bidding before the horizon and achieve similar regret despite the additional budget constraint.
 
-- it directly estimates the winning probability of each bid, from which it obtains expected reward and cost;
-- it uses a KL confidence interval for the winning probability;
-- it only considers bids affordable with the remaining budget; the zero bid remains the opt-out action.
+## Change
 
-Estimating the winning probability is particularly useful because the observation is Bernoulli and the relevant probabilities are small. KL intervals are tighter than Hoeffding intervals in this region and distinguish sooner between bids that rarely win and useful bids.
+The revised policy estimates the Bernoulli probability of winning at each bid and derives reward and cost estimates from that probability:
+
+$$
+\hat r(b)=(v-b)\hat p(b),
+\qquad
+\hat c(b)=b\hat p(b).
+$$
+
+KL intervals replace Hoeffding intervals. The LP uses an upper bound on win probability for reward and a lower bound for cost; it retains the fixed spending cap $\rho$. An affordability filter removes bids above the remaining budget, while bid zero remains available.
 
 ## Results
 
-The improved version ends with final mean regret of about 11.4, compared with 40.2 for UCB1. It spends about 123 of the available 125 and reaches about 82% of the clairvoyant reward. With the same setup, replacing the KL bound with Hoeffding raises regret to about 35.7 and leaves a substantial part of the budget unused: the wider bound favors low bids that rarely win for too long.
+Final regret is the clairvoyant LP's expected cumulative utility minus the learner's realized cumulative utility. The notebooks also report pseudo-regret using the true expected utility of selected bids.
+
+| Policy | Mean final regret | Mean spend / 125 | Share of LP expected utility |
+| --- | ---: | ---: | ---: |
+| Budget-blind UCB1 | 40.18 | 124.29 | 36.4% |
+| Budgeted Hoeffding UCB | 39.55 | 124.38 | 37.4% |
+| Budgeted KL-UCB | 11.37 | 123.20 | 82.0% |
+
+The paired confidence-bound ablation keeps the revised policy structure and changes only KL to Hoeffding. Mean regret rises from 11.37 to 35.72, while mean spend falls from 123.20 to 45.55. On this instance, the wider bound keeps selecting low bids that rarely win.
+
+An additional sweep uses 10 trials at horizons 1,000, 3,000, and 5,000, with $B/T$ held fixed. Its normalized regret is not monotonic across those horizons; it should not be read as evidence of an asymptotic regret guarantee.
+
+These results describe the saved simulations on this auction instance. The affordability rule enforces the realized budget throughout.

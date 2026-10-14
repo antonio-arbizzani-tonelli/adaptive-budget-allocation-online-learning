@@ -1,142 +1,90 @@
 # Adaptive Budget Allocation for Online Advertising
 
-**Online learning for first-price auctions, from a single campaign to combinatorial bidding in non-stationary markets.**
+Choosing a bid in an advertising auction means balancing the chance of winning, the value of a win, and the money left for later rounds. This project studies how a bidder can learn from auction outcomes while spreading a limited budget across a campaign.
 
-This project studies a practical question in online advertising: **how can a bidding system learn profitable actions while respecting a hard budget that must last for the entire campaign?**
+The experiments compare UCB and KL-UCB bidding policies, combinatorial decisions across campaigns, primal-dual budget control, and adaptation to changing competitors. Each scenario starts with a baseline, examines an observed limitation, and evaluates a specific revision.
 
-At each round, the learner selects a bid before observing the highest competing bid. Winning produces value, but also consumes budget:
+## Main results
 
-\[
-\text{reward}_{i,t} = (v_i-b_{i,t})\,\mathbb{1}\{b_{i,t}\geq m_{i,t}\},
+| Simulated setting | Baseline → revised | Reported measure |
+| --- | ---: | --- |
+| Single campaign: budgeted UCB → KL-UCB | 39.6 → 11.4 | Final regret against a stochastic clairvoyant |
+| Multiple campaigns: Combinatorial-UCB → KL bounds, empirical cost and pacing | 595.2 → 70.1 | Final pseudo-regret against a stochastic clairvoyant |
+| Primal-dual, stochastic environment | 0.249 → 0.121 | Pseudo-regret per round against the best fixed distribution |
+| Primal-dual, rapidly changing environment | 0.222 → 0.134 | Same measure and comparator |
+| Piecewise-stationary market: CUSUM-UCB | 533.3 → 344.9 | Final gap to a segment-local oracle |
+
+These are rounded means from the saved notebook outputs on synthetic auction instances. The measures use different benchmarks and should not be compared across scenarios. They provide evidence for these simulations, with no evaluation on real advertising campaigns.
+
+The notebook outputs saved at [commit 38a050b](https://github.com/antonio-arbizzani-tonelli/adaptive-budget-allocation-online-learning/commit/38a050b32a6bd757c0c2c4db18c029caa039e919) are the reference for these values. The [documentation audit](docs/documentation-audit.md) records corrections made during this revision.
+
+## Four scenarios
+
+### 1. Single campaign
+
+The bidder learns which bid to place from sparse wins. The baseline compares budget-blind UCB1 with a budgeted UCB policy whose linear program uses reward upper bounds and cost lower bounds. Wide Hoeffding intervals make the cost constraint too permissive. The revision estimates the Bernoulli win probability, uses KL bounds, and filters unaffordable bids. It reduces regret and spends 123.2 of the available 125.
+
+[Setup, notebooks and ablation](notebooks/01_single_campaign/README.md)
+
+### 2. Multiple campaigns
+
+Four campaigns share a budget and a conflict graph, so each decision is a feasible combination of bids. The Combinatorial-UCB baseline receives semi-bandit feedback but spends too early. The revision combines KL win-probability bounds, empirical LP costs, and a spending rate based on remaining budget and rounds. It uses almost all the budget through the horizon and obtains 95.6% of the clairvoyant LP's expected reward.
+
+[Setup, notebooks and ablations](notebooks/02_combinatorial_campaigns/README.md)
+
+### 3. Primal-dual control
+
+With full feedback, Hedge selects a distribution over feasible bid combinations and projected online gradient descent updates the price of spending. Conservative learning rates leave budget unused in the baseline. Calibrating the rates to the update ranges improves reward and expenditure in both tested environments. A separate affordability ablation finds no measurable benefit from changing the budget guard on these instances.
+
+[Setup, notebooks and ablations](notebooks/03_primal_dual_control/README.md)
+
+### 4. Changing markets
+
+Competitor distributions change across three segments. Sliding-Window UCB and CUSUM-UCB use semi-bandit feedback; primal-dual control uses full feedback. The UCB baselines spend too early, while primal-dual leaves budget unused. Empirical costs and dynamic pacing improve the UCB results, together with a wider sliding window for SW-UCB. CUSUM-UCB has the lowest recorded gap. SW-UCB improves from 562.0 to 416.6, and primal-dual from 715.8 to 660.4.
+
+[Setup, notebooks and window ablation](notebooks/04_non_stationary_market/README.md)
+
+## Auction model and evaluation
+
+For campaign $i$, a bid $b_{i,t}$ wins when it reaches the highest competing bid $m_{i,t}$. A first-price win yields utility $v_i-b_{i,t}$ and costs $b_{i,t}$:
+
+$$
+r_{i,t}=(v_i-b_{i,t})\mathbf{1}\{b_{i,t}\ge m_{i,t}\},
 \qquad
-\text{cost}_{i,t} = b_{i,t}\,\mathbb{1}\{b_{i,t}\geq m_{i,t}\}.
-\]
+c_{i,t}=b_{i,t}\mathbf{1}\{b_{i,t}\ge m_{i,t}\}.
+$$
 
-The objective is therefore not simply to identify the most rewarding bid. The learner must balance exploration, auction utility, and expenditure over time, under the hard constraint
+The learner must respect the realized budget $\sum_t c_t\le B$. The LPs use an average spending cap $\rho=B/T$, or the remaining-budget rate in the paced variants. Separate affordability rules enforce the hard budget.
 
-\[
-\sum_{t=1}^{T} c_t \leq B.
-\]
+| Scenario | Rounds | Budget | Main trials | Benchmark |
+| --- | ---: | ---: | ---: | --- |
+| Single campaign | 5,000 | 125 | 10 | Fixed bid distribution using the true stochastic means |
+| Multiple campaigns | 3,000 | 700 | 20 | Fixed super-action distribution using the true stochastic means |
+| Primal-dual | 3,000 | 700 | 10 per environment | Best fixed distribution fitted to the realized sequence in hindsight |
+| Changing markets | 3,000 | 560 | 30 | One true-mean LP per segment, each with the same average spending cap |
 
-The investigation begins with one stochastic campaign and gradually introduces the difficulties that make the problem realistic: multiple campaigns, combinatorial actions, shared budgets, partial and full feedback, and changing competitor behavior. Each stage starts from a principled baseline, identifies its concrete failure mode, and introduces the smallest modification needed to address it.
+Baseline and revised runs share market realizations and corresponding random seeds within each comparison. The scenario READMEs specify seeds, feedback, metric definitions, and ablations. The changing-market notebooks also include a stronger oracle that can allocate expected budget across segments.
 
-## The central finding
+## Run and explore
 
-Across the experiments, **learning rewards was rarely the main bottleneck**. Performance depended on how uncertainty interacted with budget control.
+The [notebook guide](notebooks/README.md) links all eight notebooks. Each contains its setup, generated auction data, and saved outputs; no external dataset or auction service is required.
 
-Three ideas consistently mattered:
-
-- estimating the Bernoulli probability of winning, the common source of both reward and cost;
-- using confidence bounds that remain informative when winning probabilities are small;
-- adapting the spending rule to the remaining budget and horizon instead of treating the initial average budget as a static constraint.
-
-These choices turn budget management from a final safety check into an active part of the learning strategy.
-
-## Experimental journey
-
-### 1. Learning a useful bid under a hard budget
-
-The first setting considers one campaign in a stochastic first-price auction. A budget-blind UCB learner and a budget-aware UCB learner based on a linear program provide the initial comparison.
-
-The budget-aware baseline does not gain much from its additional constraint. Hoeffding confidence intervals remain wide for most of the horizon, and the lower confidence bound on cost is frequently zero. The linear program consequently sees many bids as almost free, both learners spend too early, and their final regret is nearly identical.
-
-The revised learner estimates the probability of winning directly. Since reward and cost are deterministic functions of a win at a fixed bid, this single Bernoulli estimate provides both quantities. A KL confidence bound replaces the Hoeffding bound, and an affordability filter excludes bids that cannot be paid with the remaining budget.
-
-This change reduces final regret from **39.6 to 11.4**, spends **123 of the available 125**, and reaches approximately **82% of the clairvoyant reward**, compared with about 36% for the baseline learners.
-
-[Baseline notebook](notebooks/01_single_campaign/baseline_ucb.ipynb) · [KL-UCB notebook](notebooks/01_single_campaign/budget_aware_kl_ucb.ipynb) · [Detailed discussion](notebooks/01_single_campaign/README.md)
-
-### 2. Scaling the decision to multiple campaigns
-
-The second setting introduces four campaigns, a shared budget, and a conflict graph. Adjacent campaigns cannot receive a positive bid simultaneously, so the learner selects a feasible **super-action** rather than a single arm. Semi-bandit feedback reveals the outcome of each selected campaign.
-
-The combinatorial UCB baseline learns the relative value of the arms, but its cost lower bounds make the budget constraint too permissive. Performance initially tracks the clairvoyant policy, then the budget runs out and only the null action remains. The resulting regret grows rapidly near the end of the horizon.
-
-The improved decision layer combines four changes:
-
-- one winning-probability estimate for each campaign and bid;
-- KL confidence bounds for small-probability events;
-- empirical cost, rather than an optimistic lower bound, inside the linear program;
-- dynamic pacing based on the remaining budget divided by the remaining rounds.
-
-Final pseudo-regret falls from approximately **595 to 72**, while the learner obtains about **96% of the benchmark reward** and distributes expenditure across the full horizon. The ablations separate the effects: empirical cost improves regret from about 165 to 72 relative to the cost LCB, while KL confidence bounds improve it from about 101 to 72 relative to Hoeffding bounds.
-
-[Baseline notebook](notebooks/02_combinatorial_campaigns/baseline_combinatorial_ucb.ipynb) · [Dynamically paced learner](notebooks/02_combinatorial_campaigns/dynamic_budget_pacing.ipynb) · [Detailed discussion](notebooks/02_combinatorial_campaigns/README.md)
-
-### 3. Budget control through a primal-dual learner
-
-The third setting asks whether one algorithm can remain effective in both stochastic and highly non-stationary environments. With full feedback, the primal learner uses Hedge over the feasible super-actions, while an online gradient method updates a dual variable that acts as the price of budget consumption.
-
-The initial implementation is safe but conservative. Worst-case normalization makes the effective Hedge updates small, and the learner leaves a substantial fraction of the budget unused.
-
-The revised version calibrates the Hedge and online gradient learning rates to the actual update ranges. It also checks affordability on the sampled action, replacing only an unaffordable action with the null action instead of stopping all bidding based on a worst-case cost.
-
-Average regret per round decreases from **0.249 to 0.121** in the stochastic environment and from **0.222 to 0.134** in the non-stationary environment. Budget use rises from 569 to 676 and from 558 to 597, respectively, without violating the constraint. A horizon sweep shows decreasing normalized regret in both regimes.
-
-[Baseline notebook](notebooks/03_primal_dual_control/baseline_primal_dual.ipynb) · [Calibrated primal-dual learner](notebooks/03_primal_dual_control/calibrated_primal_dual.ipynb) · [Detailed discussion](notebooks/03_primal_dual_control/README.md)
-
-### 4. Adapting when the auction market changes
-
-The final setting makes competitor behavior piecewise stationary. The horizon contains three regimes, and the most attractive campaigns change at each transition. This creates two distinct challenges: the learner must forget obsolete observations, and the budget controller must preserve enough resources to explore after a change.
-
-Three approaches are compared:
-
-- Sliding-Window Combinatorial UCB, which forgets observations by construction;
-- CUSUM Combinatorial UCB, which detects changes and resets affected statistics;
-- the full-feedback primal-dual learner, which retains a single global history.
-
-For the UCB learners, a wider window provides enough observations per arm, empirical costs prevent premature expenditure, and dynamic pacing corrects spending deviations around change points. The CUSUM detector itself remains unchanged, isolating the effect of the improved decision layer. The primal-dual method uses the calibrated learning rates from the previous stage.
-
-CUSUM-UCB achieves the best result on this instance, reducing its final gap to the local oracle from **533 to 345**, or **0.115 per round**. Sliding-Window UCB improves from 562 to 417, while the primal-dual method improves from 716 to 660. The comparison also exposes a structural limitation: a learner designed to compete with the best fixed distribution cannot fully track a benchmark whose optimal policy changes between segments.
-
-[Baseline notebook](notebooks/04_non_stationary_market/baseline_adaptive_learners.ipynb) · [Adaptive learners](notebooks/04_non_stationary_market/change_detection_and_pacing.ipynb) · [Detailed discussion](notebooks/04_non_stationary_market/README.md)
-
-## Results at a glance
-
-| Setting | Diagnosed failure | Main intervention | Baseline | Improved |
-| --- | --- | --- | ---: | ---: |
-| Single campaign | Confidence intervals make the budget constraint ineffective | Bernoulli win model and KL bound | Regret 39.6 | Regret 11.4 |
-| Multiple campaigns | Optimistic costs exhaust the shared budget early | Empirical cost and dynamic pacing | Regret ≈ 595 | Regret ≈ 72 |
-| Primal-dual, stochastic | Conservative normalization slows adaptation | Range-aware learning rates | Regret/round 0.249 | Regret/round 0.121 |
-| Primal-dual, non-stationary | Conservative updates underuse the budget | Range-aware learning rates | Regret/round 0.222 | Regret/round 0.134 |
-| Piecewise-stationary market | Old observations and early spending hinder relearning | Forgetting, change detection, and pacing | CUSUM gap 533 | CUSUM gap 345 |
-
-## Experimental methodology
-
-The comparisons are paired: baseline and improved learners run on the same environment realizations and random seeds. This ensures that differences in the curves come from the algorithms rather than different random draws.
-
-The improvements are also evaluated through targeted ablations. Whenever possible, one component is changed at a time, including KL versus Hoeffding confidence bounds, empirical cost versus a cost lower bound, alternative window sizes, and different budget guards. This makes the source of each gain explicit and also documents modifications that did not help.
-
-The main benchmarks are linear-programming oracles with access to information unavailable to the online learners. Depending on the setting, the comparison uses a stochastic clairvoyant, the best fixed distribution in hindsight, or a segment-local oracle.
-
-## Technical components
-
-- stochastic and non-stationary multi-armed bandits;
-- combinatorial semi-bandit feedback;
-- UCB, KL-UCB, Sliding-Window UCB, and CUSUM-UCB;
-- Hedge and online projected gradient descent;
-- primal-dual online optimization;
-- linear programming over randomized bidding policies;
-- hard-budget enforcement and dynamic budget pacing;
-- paired simulations and ablation studies.
-
-The implementation uses Python with NumPy, SciPy, pandas, and Matplotlib. The experiments are self-contained in Jupyter notebooks and include their generated outputs.
-
-## Running the notebooks
-
-Create a Python environment and install the required scientific packages:
+Create and activate a Python virtual environment, then install the scientific packages and JupyterLab:
 
 ```bash
 python -m venv .venv
-source .venv/bin/activate        # Windows PowerShell: .venv\Scripts\Activate.ps1
-python -m pip install numpy scipy pandas matplotlib jupyter
+# Activate: source .venv/bin/activate
+# Windows PowerShell: .venv\Scripts\Activate.ps1
+python -m pip install numpy scipy pandas matplotlib jupyterlab
 jupyter lab
 ```
 
-Each notebook can be run independently. Start with the baseline and then run the corresponding revised learner to reproduce the paired comparison.
+Run a baseline notebook before its revised counterpart to follow the comparison. Dependency versions are not pinned in this repository, so the saved outputs remain the reference for the reported results.
 
-## Technical presentation
+## Presentation
 
-The [PowerPoint presentation](Adaptive-Budget-Allocation-for-Online-Advertising.pptx) develops the work as a single engineering story: each stage introduces a new market constraint, diagnoses the resulting failure mode, and motivates a controlled algorithmic intervention. Its charts are generated from the current code and use English labels throughout. A fixed-layout [PDF version](Adaptive-Budget-Allocation-for-Online-Advertising.pdf) is also available for quick viewing and sharing.
+The existing [PDF](Adaptive-Budget-Allocation-for-Online-Advertising.pdf) and [PowerPoint](Adaptive-Budget-Allocation-for-Online-Advertising.pptx) are legacy versions **under revision**. Their Stage 2 results still show approximately 72 rather than the saved notebook value of 70.1; use the notebook outputs and scenario READMEs as the numerical reference.
+
+[PRESENTATION_DRAFT.md](PRESENTATION_DRAFT.md) contains the revised outline and design brief. The [presentation source map](docs/presentation-sources.md) and its numerical snapshot support that draft, rather than the existing legacy slides.
 
 **Authors:** Antonio Arbizzani Tonelli, Leonardo Arisi, Claudia Berra, Gaia Di Paolo.

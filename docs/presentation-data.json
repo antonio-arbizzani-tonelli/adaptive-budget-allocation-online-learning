@@ -1,0 +1,871 @@
+{
+  "source_commit": "38a050b32a6bd757c0c2c4db18c029caa039e919",
+  "cell_indexing": "zero-based",
+  "policy": "Saved output precision. Data transcribed for proposed summary charts; no experiment execution.",
+  "stage1": {
+    "baseline_notebook": "notebooks/01_single_campaign/baseline_ucb.ipynb",
+    "improved_notebook": "notebooks/01_single_campaign/budget_aware_kl_ucb.ipynb",
+    "notebook_url": "https://github.com/antonio-arbizzani-tonelli/adaptive-budget-allocation-online-learning/blob/38a050b32a6bd757c0c2c4db18c029caa039e919/notebooks/01_single_campaign/budget_aware_kl_ucb.ipynb",
+    "config": {
+      "source_cells": [
+        2,
+        8
+      ],
+      "horizon": 5000,
+      "budget": 125,
+      "valuation": 0.6,
+      "competitors": 3,
+      "competitor_bid_distribution": "Three independent Uniform[0, 1] bids each round",
+      "auction": "First-price",
+      "candidate_bid_grid": "np.round(np.linspace(0.0, 1.0, 11), 10)",
+      "admissible_bids": [
+        0,
+        0.1,
+        0.2,
+        0.3,
+        0.4,
+        0.5,
+        0.6
+      ],
+      "winning_probability": "p(b) = b^3",
+      "reward": "(valuation - bid) * win",
+      "cost": "bid * win",
+      "trials": 10,
+      "market_seed": 20260517,
+      "budgeted_action_seeds": "20000 + epoch, epoch = 0,...,9",
+      "paired_comparisons": "All main learners use the same pre-generated competitor bids; the confidence-bound ablation also uses these sequences and the same action seeds.",
+      "rho": "B/T = 0.025",
+      "feedback": "Win/reward/cost observation for the selected bid"
+    },
+    "benchmark": {
+      "source_cells": [
+        2,
+        5,
+        6
+      ],
+      "definition": "Stochastic clairvoyant: LP chooses a fixed distribution over bids using the true expected reward and cost, with expected per-round cost <= B/T. It does not know future realized competitor bids.",
+      "saved_gamma": {
+        "0.3": 0.034286,
+        "0.4": 0.965714
+      },
+      "other_saved_gamma_entries": 0,
+      "rounded_per_round_expected_reward_in_existing_documentation": 0.0126
+    },
+    "metrics": {
+      "source_cell": 4,
+      "realized_regret": "Sum over rounds of clairvoyant expected reward per round minus realized learner utility",
+      "pseudo_regret": "Sum over rounds of clairvoyant expected reward per round minus true expected reward of the selected bid",
+      "SEM": "Across-trial standard deviation with ddof=1 divided by sqrt(number of trials)",
+      "ratio": "Mean realized total learner reward / (clairvoyant expected per-round reward * horizon)"
+    },
+    "hard_budget": {
+      "baseline_source_cells": [
+        2,
+        3
+      ],
+      "baseline": "Both original agents choose the zero bid when remaining budget < 1. The largest admissible bid is 0.6; this guard is safe and conservative.",
+      "improved_source_cell": 3,
+      "improved": "Exclude bids greater than the remaining budget (tolerance 1e-12); the zero bid remains available. LP uses fixed initial rho, reward (v-b)*p_UCB and cost b*p_LCB.",
+      "dynamic_pacing_implemented": false,
+      "empirical_cost_in_improved_LP": false,
+      "kl_bound": "n * KL(p_hat, q) <= log(max(t, 2)); 15 bisection iterations"
+    },
+    "main_results": {
+      "baseline_source": {
+        "cell_index": 8,
+        "output_index": 0,
+        "mime": "text/html"
+      },
+      "improved_source": {
+        "cell_index": 8,
+        "output_index": 0,
+        "mime": "text/html"
+      },
+      "rows": [
+        {
+          "algorithm": "UCB1 budget-blind",
+          "mean_realized_regret": 40.184286,
+          "sem_realized_regret": 0.49339,
+          "regret_per_round": 0.008037,
+          "mean_pseudo_regret": 40.773786,
+          "mean_realized_reward": 23.01,
+          "mean_spend": 124.29,
+          "reward_fraction_of_clairvoyant": 0.364115
+        },
+        {
+          "algorithm": "UCB-like + budget baseline",
+          "mean_realized_regret": 39.554286,
+          "sem_realized_regret": 0.703357,
+          "regret_per_round": 0.007911,
+          "mean_pseudo_regret": 40.693826,
+          "mean_realized_reward": 23.64,
+          "mean_spend": 124.38,
+          "reward_fraction_of_clairvoyant": 0.374084
+        },
+        {
+          "algorithm": "Budgeted KL-UCB",
+          "mean_realized_regret": 11.374286,
+          "sem_realized_regret": 1.50265,
+          "regret_per_round": 0.002275,
+          "mean_pseudo_regret": 12.261426,
+          "mean_realized_reward": 51.82,
+          "mean_spend": 123.2,
+          "reward_fraction_of_clairvoyant": 0.820011
+        }
+      ]
+    },
+    "confidence_bound_ablation": {
+      "source": {
+        "cell_index": 17,
+        "output_index": 0,
+        "mime": "text/html"
+      },
+      "only_change": "KL versus Hoeffding confidence interval for the same winning-probability learner",
+      "rows": [
+        {
+          "bound": "KL",
+          "mean_realized_regret": 11.374286,
+          "mean_reward": 51.82,
+          "mean_spend": 123.2,
+          "reward_fraction_of_clairvoyant": 0.820011
+        },
+        {
+          "bound": "Hoeffding",
+          "mean_realized_regret": 35.724286,
+          "mean_reward": 27.47,
+          "mean_spend": 45.55,
+          "reward_fraction_of_clairvoyant": 0.434691
+        }
+      ]
+    },
+    "horizon_sweep": {
+      "source": {
+        "cell_index": 14,
+        "output_index": 0,
+        "mime": "text/html"
+      },
+      "fixed_rho": 0.025,
+      "trials_per_horizon": 10,
+      "market_seeds_by_horizon": {
+        "1000": 910000,
+        "3000": 912000,
+        "5000": 914000
+      },
+      "action_seeds": "20000 + epoch",
+      "rows": [
+        {
+          "horizon": 1000,
+          "budget": 25,
+          "mean_realized_regret": 3.948857,
+          "sem_realized_regret": 0.690161,
+          "regret_per_round": 0.003949,
+          "pseudo_regret_per_round": 0.004264,
+          "mean_spend": 19.45
+        },
+        {
+          "horizon": 3000,
+          "budget": 75,
+          "mean_realized_regret": 7.476571,
+          "sem_realized_regret": 1.323564,
+          "regret_per_round": 0.002492,
+          "pseudo_regret_per_round": 0.002933,
+          "mean_spend": 67.72
+        },
+        {
+          "horizon": 5000,
+          "budget": 125,
+          "mean_realized_regret": 16.484286,
+          "sem_realized_regret": 1.084174,
+          "regret_per_round": 0.003297,
+          "pseudo_regret_per_round": 0.003463,
+          "mean_spend": 120.63
+        }
+      ],
+      "interpretation_limit": "Normalized regret is not monotonic across these independent seeds/horizons. The 5000-round sweep uses a different market seed from the main experiment."
+    }
+  },
+  "stage2": {
+    "baseline_notebook": "notebooks/02_combinatorial_campaigns/baseline_combinatorial_ucb.ipynb",
+    "improved_notebook": "notebooks/02_combinatorial_campaigns/dynamic_budget_pacing.ipynb",
+    "notebook_url": "https://github.com/antonio-arbizzani-tonelli/adaptive-budget-allocation-online-learning/blob/38a050b32a6bd757c0c2c4db18c029caa039e919/notebooks/02_combinatorial_campaigns/dynamic_budget_pacing.ipynb",
+    "config": {
+      "source_cells": [
+        2,
+        3,
+        5,
+        12,
+        13
+      ],
+      "horizon": 3000,
+      "budget": 700,
+      "rho": "B/T = 700/3000",
+      "trials": 20,
+      "valuations": [
+        0.95,
+        0.85,
+        0.78,
+        0.9
+      ],
+      "candidate_bid_grid": "np.linspace(0.0, 1.0, 11)",
+      "admissible_positive_bids": "0 < bid <= campaign valuation; zero is opt-out",
+      "positive_atomic_arms": 33,
+      "super_actions": 250,
+      "conflict_edges": [
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          2,
+          3
+        ]
+      ],
+      "maximum_sum_of_bids": 1.8,
+      "threshold_beta_parameters": [
+        [
+          2,
+          5
+        ],
+        [
+          2.8,
+          3.8
+        ],
+        [
+          3.5,
+          3
+        ],
+        [
+          2.3,
+          4
+        ]
+      ],
+      "common_quantile_probability": 0.3,
+      "threshold_generation": "With probability 0.3 all campaigns share one uniform quantile; otherwise quantiles are independent. Apply each campaign's Beta inverse CDF, preserving the marginals.",
+      "market_seeds": "100 + i, i = 0,...,19",
+      "action_seeds": "1100 + i, i = 0,...,19",
+      "illustrative_plot_seed_only": 17,
+      "paired_comparisons": "Baseline, improved learner, references and ablations share market realizations and agent RNG seeds; the baseline is rerun unchanged in the improved notebook.",
+      "feedback": "Semi-bandit feedback for played campaign/bid arms",
+      "auction": "First-price for each campaign; win when bid >= threshold; reward (v_i-b_i)*win; cost b_i*win"
+    },
+    "benchmark": {
+      "source_cell": 7,
+      "definition": "Stochastic clairvoyant: true-mean LP chooses a fixed distribution over feasible super-actions with expected average cost <= B/T.",
+      "printed_expected_reward_per_round": 0.5478,
+      "printed_expected_cost_per_round": 0.2333,
+      "simulated_reference_note": "ClairvoyantPolicy samples the LP distribution and stops below the worst-case cost guard. Its finite-trial realized reward is distinct from the expected LP objective."
+    },
+    "metrics": {
+      "baseline_source_cell": 11,
+      "improved_source_cell": 12,
+      "pseudo_regret": "Cumulative oracle expected per-round reward minus true expected reward of selected super-action",
+      "realized_regret": "Cumulative oracle expected per-round reward minus realized learner utility",
+      "SEM": "Curves use across-trial ddof=1 SEM, but numerical SEM summaries are not saved in these tables.",
+      "ratio": "100 * mean realized learner utility / (oracle expected per-round reward * horizon)",
+      "checkpoint_fractions": [
+        0.25,
+        0.5,
+        0.75,
+        1
+      ]
+    },
+    "hard_budget": {
+      "baseline_source_cell": 9,
+      "baseline": "Combinatorial-UCB and sampled clairvoyant opt out below remaining budget 1.8, covering every possible winning cost of a super-action. Random selects only actions with sum of bids <= remaining budget.",
+      "saved_baseline_maximum_spend": {
+        "notebook": "baseline_combinatorial_ucb.ipynb",
+        "cell_index": 16,
+        "output_index": 0,
+        "value": 699
+      },
+      "improved_source_cell": 10,
+      "improved": "Restrict LP support to super-actions whose sum of bids <= remaining budget + 1e-12; use empirical expected cost b*p_hat and rho_t = remaining budget / remaining rounds. Null action is the fallback.",
+      "kl_bound": "n * KL(p_hat, q) <= log(max(t, 3)); 12 bisection iterations"
+    },
+    "main_results": {
+      "source": {
+        "cell_index": 13,
+        "output_index": 0,
+        "mime": "text/html"
+      },
+      "baseline_corroboration": {
+        "notebook": "baseline_combinatorial_ucb.ipynb",
+        "cell_index": 12,
+        "output_index": 0
+      },
+      "rows": [
+        {
+          "algorithm": "Random",
+          "mean_reward": 341.0075,
+          "percent_oracle": 20.7484,
+          "mean_spend": 700,
+          "mean_pseudo_regret": 1305.557836,
+          "mean_realized_regret": 1302.528872,
+          "pseudo_regret_per_round_checkpoints": [
+            0.2159,
+            0.3225,
+            0.3976,
+            0.4352
+          ],
+          "sem": null
+        },
+        {
+          "algorithm": "Sampled clairvoyant policy",
+          "mean_reward": 1628.935,
+          "percent_oracle": 99.111588,
+          "mean_spend": 693.45,
+          "mean_pseudo_regret": 11.802113,
+          "mean_realized_regret": 14.601372,
+          "pseudo_regret_per_round_checkpoints": [
+            0,
+            0.0001,
+            0,
+            0.0039
+          ],
+          "sem": null
+        },
+        {
+          "algorithm": "Combinatorial-UCB baseline",
+          "mean_reward": 1047.218,
+          "percent_oracle": 63.717361,
+          "mean_spend": 698.575,
+          "mean_pseudo_regret": 595.154806,
+          "mean_realized_regret": 596.318372,
+          "pseudo_regret_per_round_checkpoints": [
+            0.0385,
+            -0.0033,
+            0.0819,
+            0.1984
+          ],
+          "sem": null
+        },
+        {
+          "algorithm": "KL-UCB with empirical costs and dynamic pacing",
+          "mean_reward": 1570.4475,
+          "percent_oracle": 95.552951,
+          "mean_spend": 699.835,
+          "mean_pseudo_regret": 70.054544,
+          "mean_realized_regret": 73.088872,
+          "pseudo_regret_per_round_checkpoints": [
+            0.05,
+            0.0349,
+            0.0275,
+            0.0234
+          ],
+          "sem": null
+        }
+      ]
+    },
+    "ablations": [
+      {
+        "change": "KL versus Hoeffding, all other improved components retained",
+        "source": {
+          "cell_index": 17,
+          "output_index": 0,
+          "mime": "text"
+        },
+        "printed_final_mean_pseudo_regret": {
+          "KL": 70.1,
+          "Hoeffding": 100.5
+        }
+      },
+      {
+        "change": "Empirical cost versus cost LCB, all other improved components retained",
+        "source": {
+          "cell_index": 18,
+          "output_index": 0,
+          "mime": "text"
+        },
+        "printed_final_mean_pseudo_regret": {
+          "empirical_cost": 70.1,
+          "cost_LCB": 166.2
+        },
+        "printed_mean_spend_at_T_over_4": {
+          "empirical_cost": 176,
+          "cost_LCB": 241.4
+        }
+      }
+    ]
+  },
+  "stage3": {
+    "notebook": "notebooks/03_primal_dual_control/calibrated_primal_dual.ipynb",
+    "configuration": {
+      "cells": [
+        1,
+        3,
+        5,
+        12
+      ],
+      "horizon": 3000,
+      "budget": 700,
+      "main_trials": 10,
+      "campaign_values": [
+        0.95,
+        0.85,
+        0.78,
+        0.9
+      ],
+      "bid_grid": "linspace(0,1,11), filtered to bid <= campaign value",
+      "conflicts": [
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          2,
+          3
+        ]
+      ],
+      "superactions": 250,
+      "maximum_possible_round_payment": 1.8,
+      "stochastic_beta_parameters": [
+        [
+          2,
+          5
+        ],
+        [
+          2.8,
+          3.8
+        ],
+        [
+          3.5,
+          3
+        ],
+        [
+          2.3,
+          4
+        ]
+      ],
+      "shared_quantile_fraction": 0.3,
+      "nonstationary_sequence": "Oblivious thresholds: five sinusoidal cycles over the horizon, campaign-specific phases, Gaussian noise SD 0.05, clipped to [0,1].",
+      "environment_seed": "17 + 1000 * trial + (100000 for nonstationary, otherwise 0)",
+      "agent_seed_offsets": {
+        "primal_dual": 10000,
+        "random": 20000
+      },
+      "pairing": "Baseline and calibrated PD use identical environment and PD seeds; baseline is rerun in cell 17.",
+      "feedback": "Full counterfactual reward/cost vectors observed after selecting the round action."
+    },
+    "benchmark": {
+      "cells": [
+        7,
+        12
+      ],
+      "name": "best fixed distribution in hindsight",
+      "definition": "One LP on realized sequence average reward/cost, with average cost <= B/T; evaluated as F_t dot x_star.",
+      "metric": "pseudo_regret_t = F_t dot x_star - F_t dot x_t",
+      "proposal_caveat": "x_t is the proposed distribution even when a sampled action is overridden; actual utility and spend are measured from the executed action."
+    },
+    "main_comparison": {
+      "cell": 17,
+      "precision": {
+        "reward_decimals": 1,
+        "regret_per_round_decimals": 3,
+        "spend_decimals": 1
+      },
+      "rows": [
+        {
+          "environment": "stochastic",
+          "version": "baseline",
+          "realized_reward": 895.8,
+          "pseudo_regret_per_round": 0.249,
+          "spend": 568.6
+        },
+        {
+          "environment": "stochastic",
+          "version": "calibrated",
+          "realized_reward": 1287.9,
+          "pseudo_regret_per_round": 0.121,
+          "spend": 675.8
+        },
+        {
+          "environment": "nonstationary",
+          "version": "baseline",
+          "realized_reward": 835.4,
+          "pseudo_regret_per_round": 0.222,
+          "spend": 557.6
+        },
+        {
+          "environment": "nonstationary",
+          "version": "calibrated",
+          "realized_reward": 1100,
+          "pseudo_regret_per_round": 0.134,
+          "spend": 596.8
+        }
+      ],
+      "budget_checks": "Cell 14 prints violation 0.00 for every reported group and override rate 0.000 to displayed precision.",
+      "final_numeric_sem_available": false,
+      "graph_bands": "Cell 15 computes pointwise sample SEM over the 10 trials, but final numeric SEM is not stored in the tables."
+    },
+    "algorithm_changes": {
+      "cells": [
+        8,
+        10,
+        17
+      ],
+      "baseline_hedge_eta": "sqrt(log(K)/T)",
+      "calibrated_hedge_eta": "sqrt(8*log(K)/T)",
+      "baseline_dual_eta": "1/sqrt(T)",
+      "calibrated_dual_eta": "lambda_max / (G*sqrt(T)), G=max(rho, maximum_round_cost-rho), lambda_max=1/rho",
+      "normalization": "Fixed bounds over full horizon; removing lambda*rho is action-independent and does not change Hedge probabilities at otherwise identical settings.",
+      "baseline_guard": "Play null whenever remaining budget < maximum possible round payment.",
+      "calibrated_guard": "Replace the sampled action with null if its sum of bids > remaining budget."
+    },
+    "guard_ablation": {
+      "cells": [
+        18,
+        19
+      ],
+      "trials": 8,
+      "controls": "Same calibrated rates, dual update, environments and seeds; only global_stop/per_action differs.",
+      "rows": [
+        {
+          "environment": "stochastic",
+          "rule": "per_action",
+          "reward": 1286.3,
+          "pseudo_regret_per_round": 0.121,
+          "spend": 674.5
+        },
+        {
+          "environment": "stochastic",
+          "rule": "global_stop",
+          "reward": 1286.3,
+          "pseudo_regret_per_round": 0.121,
+          "spend": 674.5
+        },
+        {
+          "environment": "nonstationary",
+          "rule": "per_action",
+          "reward": 1100.3,
+          "pseudo_regret_per_round": 0.134,
+          "spend": 597.2
+        },
+        {
+          "environment": "nonstationary",
+          "rule": "global_stop",
+          "reward": 1100.3,
+          "pseudo_regret_per_round": 0.134,
+          "spend": 597.2
+        }
+      ],
+      "supported_conclusion": "No observed benefit from the per-action guard in this ablation. Improvement is supported for rate calibration; attributing a measured gain to the guard is unsupported."
+    },
+    "horizon_sweep": {
+      "cell": 21,
+      "trials_per_horizon": 8,
+      "constant_budget_per_round": "700/3000",
+      "horizons": [
+        100,
+        200,
+        300,
+        500,
+        800,
+        1200,
+        1600,
+        2400,
+        3000
+      ],
+      "stochastic_pd_regret_per_round": [
+        0.265,
+        0.2638,
+        0.2609,
+        0.238,
+        0.2042,
+        0.1745,
+        0.1528,
+        0.1299,
+        0.1209
+      ],
+      "nonstationary_pd_regret_per_round": [
+        0.2335,
+        0.2357,
+        0.2315,
+        0.2111,
+        0.1919,
+        0.1712,
+        0.1547,
+        0.1389,
+        0.1337
+      ],
+      "interpretation": "Overall decline over tested horizons, with one small increase in nonstationary values; finite simulation evidence does not prove asymptotic sublinear regret."
+    }
+  },
+  "stage4": {
+    "notebook": "notebooks/04_non_stationary_market/change_detection_and_pacing.ipynb",
+    "baseline_notebook": "notebooks/04_non_stationary_market/baseline_adaptive_learners.ipynb",
+    "configuration": {
+      "cells": [
+        1,
+        2,
+        4,
+        6,
+        14,
+        15
+      ],
+      "horizon": 3000,
+      "budget": 560,
+      "main_trials": 30,
+      "segment_lengths": [
+        1000,
+        1000,
+        1000
+      ],
+      "known_number_of_changes": 2,
+      "campaign_values": [
+        0.95,
+        0.88,
+        0.78,
+        0.92
+      ],
+      "bid_grid": [
+        0,
+        0.1,
+        0.2,
+        0.3,
+        0.4,
+        0.55,
+        0.7,
+        0.85
+      ],
+      "conflicts": [
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          2,
+          3
+        ]
+      ],
+      "superactions": 168,
+      "positive_arms": 27,
+      "segment_beta_parameters": [
+        [
+          [
+            2,
+            5
+          ],
+          [
+            3.2,
+            3.8
+          ],
+          [
+            4.1,
+            3
+          ],
+          [
+            2.4,
+            4.2
+          ]
+        ],
+        [
+          [
+            4.8,
+            2.3
+          ],
+          [
+            2.3,
+            5.4
+          ],
+          [
+            5,
+            2.6
+          ],
+          [
+            3.5,
+            3
+          ]
+        ],
+        [
+          [
+            2.4,
+            2.3
+          ],
+          [
+            5.1,
+            2
+          ],
+          [
+            2.2,
+            5.1
+          ],
+          [
+            4.4,
+            2.8
+          ]
+        ]
+      ],
+      "threshold_draws": "Independent campaign Beta draws within a stationary segment.",
+      "environment_seeds": "1000 + j, j=0..29 (SEED=23 is only used for an illustrative plot)",
+      "agent_seed_offsets": {
+        "sw_ucb": 10000,
+        "cusum_ucb": 20000,
+        "pd_full": 30000
+      },
+      "pairing": "All methods and both versions share the same environment path per trial; matching method seeds are reused across versions.",
+      "feedback": {
+        "sw_ucb": "semi-bandit",
+        "cusum_ucb": "semi-bandit",
+        "pd_full": "full feedback"
+      }
+    },
+    "benchmarks": {
+      "cell": 8,
+      "local": {
+        "name": "segment-local oracle",
+        "definition": "Separate expected reward/cost LP for each segment; each uses cost cap B/T, with Beta CDF means.",
+        "saved_total_expected_utility": 1228.6,
+        "saved_decimals": 1,
+        "approximate_sum_from_rounded_gap_and_utility_columns": 1228.55
+      },
+      "global": {
+        "name": "segment-global oracle",
+        "definition": "One distribution per segment under one total expected budget B; can shift spending across segments.",
+        "saved_total_expected_utility": 1252,
+        "saved_decimals": 1,
+        "approximate_sum_from_rounded_gap_and_utility_columns": 1252.02
+      },
+      "exact_full_precision_available": false,
+      "metric_cell": 17,
+      "metric": "gap = deterministic cumulative expected oracle utility minus realized cumulative learner utility",
+      "distinction": "These are expected policy LP comparators, not trajectory-wise realized optima, and differ from Stage 3's best fixed distribution on the realized sequence."
+    },
+    "main_comparison": {
+      "cell": 17,
+      "precision_decimals": 2,
+      "sem": "Sample SEM over 30 trials; numeric values preserved in saved HTML table.",
+      "rows": [
+        {
+          "algorithm": "sw_ucb",
+          "version": "baseline",
+          "local_gap": 561.99,
+          "local_gap_sem": 2.25,
+          "global_gap": 585.46,
+          "realized_utility": 666.56,
+          "utility_sem": 2.25,
+          "spend": 559.98,
+          "budget_remaining": 0.02
+        },
+        {
+          "algorithm": "cusum_ucb",
+          "version": "baseline",
+          "local_gap": 533.3,
+          "local_gap_sem": 5.1,
+          "global_gap": 556.76,
+          "realized_utility": 695.25,
+          "utility_sem": 5.1,
+          "spend": 559.97,
+          "budget_remaining": 0.03
+        },
+        {
+          "algorithm": "pd_full",
+          "version": "baseline",
+          "local_gap": 715.78,
+          "local_gap_sem": 2.55,
+          "global_gap": 739.25,
+          "realized_utility": 512.77,
+          "utility_sem": 2.55,
+          "spend": 393.41,
+          "budget_remaining": 166.59
+        },
+        {
+          "algorithm": "sw_ucb",
+          "version": "revised",
+          "local_gap": 416.65,
+          "local_gap_sem": 2.78,
+          "global_gap": 440.11,
+          "realized_utility": 811.9,
+          "utility_sem": 2.78,
+          "spend": 559.81,
+          "budget_remaining": 0.19
+        },
+        {
+          "algorithm": "cusum_ucb",
+          "version": "revised",
+          "local_gap": 344.93,
+          "local_gap_sem": 4.06,
+          "global_gap": 368.4,
+          "realized_utility": 883.62,
+          "utility_sem": 4.06,
+          "spend": 559.6,
+          "budget_remaining": 0.4
+        },
+        {
+          "algorithm": "pd_full",
+          "version": "revised",
+          "local_gap": 660.35,
+          "local_gap_sem": 2.77,
+          "global_gap": 683.82,
+          "realized_utility": 568.2,
+          "utility_sem": 2.77,
+          "spend": 348.92,
+          "budget_remaining": 211.08
+        }
+      ],
+      "revised_gap_per_round_saved_cell18": {
+        "sw_ucb": 0.1389,
+        "cusum_ucb": 0.115,
+        "pd_full": 0.2201
+      },
+      "budget_check_cell15": "All trial expenditures asserted <= BUDGET + 1e-9; saved output confirms budget respected in every trial."
+    },
+    "algorithm_changes": {
+      "cells": [
+        2,
+        10,
+        12
+      ],
+      "sw_window_baseline": 219,
+      "sw_window_revised": 500,
+      "window_unit": "calendar rounds, not arm observations",
+      "wide_window_assumption": "500 is half the known 1000-round segment length.",
+      "ucb_changes": "Empirical cost replaces cost LCB in LP; cap becomes remaining budget / remaining rounds; SW also widens window.",
+      "cusum_parameters_unchanged": {
+        "reference_samples_M": 7,
+        "threshold_h_saved": 14.63,
+        "exploration_alpha_saved": 0.0698
+      },
+      "cusum_statistic": "Two-sided cumulative deviation of each selected arm's Bernoulli win indicator from its initial reference mean; reset the affected arm and force M new reference pulls.",
+      "pd_change": "Calibrated Hedge and OGD rates; both Stage 4 baseline and revised PD already use the per-action maximum-payment guard.",
+      "hard_budget_enforcement": "LP assigns zero mass to bid sums exceeding remaining budget; forced UCB pulls are affordable; PD replaces unaffordable sampled actions with null."
+    },
+    "window_ablation": {
+      "cell": 20,
+      "trials": 30,
+      "controls": "Revised SW uses empirical costs and dynamic pacing for both windows; environments and SW seeds paired.",
+      "rows": [
+        {
+          "window": 219,
+          "mean_local_gap": 496.1
+        },
+        {
+          "window": 500,
+          "mean_local_gap": 416.6
+        }
+      ],
+      "saved_decimals": 1,
+      "numeric_sem_available": false,
+      "supported_conclusion": "Larger window improves recorded gap on this one fixed segmented instance; this does not establish that forgetting is generally unimportant."
+    },
+    "cusum_diagnostics": {
+      "baseline_cell": 20,
+      "revised_cell": 22,
+      "baseline_mean_resets": 18.2,
+      "revised_mean_resets": 32,
+      "reference_count": 54,
+      "caveat": "54 is the illustrative product 2 changes x 27 arms. Reset count is not a detection accuracy measurement; saved histogram includes resets away from true change points."
+    }
+  }
+}
