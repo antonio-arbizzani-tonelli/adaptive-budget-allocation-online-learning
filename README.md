@@ -99,8 +99,8 @@ This is a newly verified compatible environment, not a reconstruction of the his
 
 ## Presentation
 
-The existing [PDF](Adaptive-Budget-Allocation-for-Online-Advertising.pdf) and [PowerPoint](Adaptive-Budget-Allocation-for-Online-Advertising.pptx) are legacy versions **under revision**. Their Stage 2 results still show approximately 72 rather than the saved notebook value of 70.1; use the notebook outputs and scenario READMEs as the numerical reference.
+The final presentation is available as [PDF](presentations/Adaptive-Budget-Allocation-for-Online-Advertising.pdf) and [PowerPoint](presentations/Adaptive-Budget-Allocation-for-Online-Advertising.pptx). The saved notebook outputs and scenario READMEs remain the numerical reference for the results.
 
-[PRESENTATION_DRAFT.md](PRESENTATION_DRAFT.md) contains the revised outline and design brief. The [presentation source map](docs/presentation-sources.md) and its numerical snapshot support that draft, rather than the existing legacy slides.
+The [presentation sources](docs/presentation-sources.md) and [data snapshot](docs/presentation-data.json) record the supporting notebook evidence.
 
 **Authors:** Antonio Arbizzani Tonelli, Leonardo Arisi, Claudia Berra, Gaia Di Paolo.

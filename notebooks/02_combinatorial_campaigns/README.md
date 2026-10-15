@@ -53,4 +53,4 @@ With the cost LCB, mean spend by one quarter of the horizon is 241.4, versus 176
 
 These values use the outputs saved at [commit 38a050b](https://github.com/antonio-arbizzani-tonelli/adaptive-budget-allocation-online-learning/commit/38a050b32a6bd757c0c2c4db18c029caa039e919). The revised learner's unrounded mean pseudo-regret is 70.054544.
 
-The existing PDF and PowerPoint are legacy versions **under revision**. They still report approximately 72, 101, and 165 for the three variants, and 177 for early empirical-cost spend. Those values have not been reconciled with the saved outputs and are not used in the tables above. The [presentation draft](../../PRESENTATION_DRAFT.md) uses the recorded results; its [source map](../../docs/presentation-sources.md) identifies the supporting notebook outputs.
+The final presentation is available as [PDF](../../presentations/Adaptive-Budget-Allocation-for-Online-Advertising.pdf) and [PowerPoint](../../presentations/Adaptive-Budget-Allocation-for-Online-Advertising.pptx). It reports pseudo-regret and realized regret separately; these measures use expected selected-action utility and realized learner utility respectively.

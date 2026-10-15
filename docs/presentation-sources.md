@@ -1,10 +1,8 @@
-# Presentation draft sources
+# Presentation sources
 
-This source index supports the proposed 22-slide [presentation draft](../PRESENTATION_DRAFT.md), based on the saved simulation evidence at source commit [`38a050b32a6bd757c0c2c4db18c029caa039e919`](https://github.com/antonio-arbizzani-tonelli/adaptive-budget-allocation-online-learning/commit/38a050b32a6bd757c0c2c4db18c029caa039e919). Its recommended tables and summary charts use recorded numerical outputs. No notebook cell or experiment was run to prepare the draft.
+The [PowerPoint](../presentations/Adaptive-Budget-Allocation-for-Online-Advertising.pptx) and [PDF](../presentations/Adaptive-Budget-Allocation-for-Online-Advertising.pdf) contain 16 main slides, an appendix divider and six technical backup slides. This index maps all 23 slides to the notebook code and saved outputs at source commit [`38a050b32a6bd757c0c2c4db18c029caa039e919`](https://github.com/antonio-arbizzani-tonelli/adaptive-budget-allocation-online-learning/commit/38a050b32a6bd757c0c2c4db18c029caa039e919). No notebook cell or experiment was run for the presentation.
 
-The existing [PowerPoint](../Adaptive-Budget-Allocation-for-Online-Advertising.pptx) and [PDF](../Adaptive-Budget-Allocation-for-Online-Advertising.pdf) are earlier artifacts under revision. They have not been updated to match the corrected documentation or this proposed slide sequence. The mappings and chart recommendations below describe the textual draft rather than those binaries.
-
-[presentation-data.json](presentation-data.json) contains the documented configurations, metrics and numerical snapshot available for the proposed tables and charts. Values retain the precision available in saved outputs. Suggested slide labels may round them further for readability. The snapshot is a transcription of recorded evidence, not a new experiment or a collection of the original trial arrays.
+[presentation-data.json](presentation-data.json) contains the documented configurations, metrics and numerical snapshot behind the presentation's tables, labels and figures. Values retain the precision available in saved outputs; slide labels sometimes round them further for readability. The snapshot is a transcription of recorded evidence, not a new experiment or a collection of the original trial arrays.
 
 Cell indices below start at zero and count both markdown and code cells. GitHub does not provide stable links to individual rendered notebook cells, so the notebook links are pinned to the source commit; use the listed cell index to locate the source.
 
@@ -23,11 +21,11 @@ Cell indices below start at zero and count both markdown and code cells. GitHub 
 
 ## Source catalogue
 
-The source IDs in the draft slide index resolve to these exact cells. JSON paths refer to [presentation-data.json](presentation-data.json).
+The source IDs in the slide index resolve to these exact cells. JSON paths refer to [presentation-data.json](presentation-data.json).
 
 | Source ID | Notebook cells | Evidence and snapshot location |
 | --- | --- | --- |
-| G1 | R1: 2, 3, 4; R2: 3, 5, 7, 10, 12 | First-price utility and cost, LP constraints, metrics and affordability. `stage1.metrics`, `stage1.hard_budget`, `stage2.metrics`, `stage2.hard_budget`. R1 cell 6 additionally records the stochastic oracle distribution. |
+| G1 | R1: 2, 3, 4, 6; R2: 3, 5, 7, 10, 12 | First-price utility and cost, stochastic oracle, LP constraints, metrics and affordability. `stage1.metrics`, `stage1.benchmark`, `stage1.hard_budget`, `stage2.metrics`, `stage2.hard_budget`. |
 | G2 | R1: 8; R2: 13; R3: 12, 17; R4: 15, 17 | Paired market paths and corresponding learner seeds; main trial counts. Scenario `config` or `configuration` objects. |
 | S1.1 | B1: 2, 3, 8; R1: 2, 3, 4, 6, 8 | Single-campaign setup, baseline and KL learner, stochastic LP and main table. `stage1.config`, `stage1.benchmark`, `stage1.main_results.rows`. |
 | S1.2 | R1: 16, 17 | Bound-only KL/Hoeffding ablation and saved output table. `stage1.confidence_bound_ablation`. |
@@ -38,45 +36,48 @@ The source IDs in the draft slide index resolve to these exact cells. JSON paths
 | S3.2 | R3: 14, 17 | Main ten-trial comparison, realized reward, distribution-based pseudo-regret, spend and budget diagnostics. `stage3.main_comparison`. |
 | S3.3 | R3: 18, 19 | Eight-trial paired guard ablation with identical displayed outcomes. `stage3.guard_ablation`. |
 | S3.4 | R3: 21 | Nine saved horizon rows, eight trials per horizon, fixed B/T. `stage3.horizon_sweep`. |
-| S4.1 | B4: 12; R4: 1, 2, 4, 6, 8, 10, 12, 15 | Three-segment setup, local/global expected-policy oracles, learner changes, detector parameters and hard-budget rules. `stage4.configuration`, `stage4.benchmarks`, `stage4.algorithm_changes`. |
+| S4.1 | B4: 10, 12; R4: 1, 2, 4, 6, 8, 10, 12, 15 | Three-segment setup, local/global expected-policy oracles, learner changes, detector parameters and hard-budget rules. `stage4.configuration`, `stage4.benchmarks`, `stage4.algorithm_changes`. The lowest-mean competitor distribution in each segment follows analytically from the configured Beta parameters, rather than an additional simulation. |
 | S4.2 | B4: 17; R4: 17, 18 | Thirty-trial baseline/revised tables, local and global gaps, saved SEM, spend and normalized revised gaps. `stage4.main_comparison`. |
 | S4.3 | R4: 19, 20 | Paired window ablation, holding empirical costs and pacing fixed. `stage4.window_ablation`. |
 | S4.4 | B4: 20; R4: 22 | Recorded CUSUM reset counts and diagnostic plots. `stage4.cusum_diagnostics`. Counts are not detection accuracy. |
 
-## Draft slide index
+## Slide index
 
-| Proposed slide | Content | Source IDs |
+Slide numbers below are physical page positions in both files. The six appendix slides are also labeled A1–A6 in the presentation.
+
+| Slide | Content | Source IDs |
 | ---: | --- | --- |
 | 1 | Title and authors | Editorial title; no numerical claim |
 | 2 | Auction decision, utility and campaign budget | G1 |
 | 3 | Main results table | S1.1, S2.2, S3.2, S4.2 |
-| 4 | Benchmark and metric distinctions | G1, S3.1, S4.1 |
-| 5 | Configurations and paired comparisons | G2, S1.1, S2.1, S3.1, S4.1 |
-| 6 | Single-campaign problem, baseline and revision | S1.1 |
-| 7 | Single-campaign regret, SEM, spend and utility-share table | S1.1 |
-| 8 | Single-campaign confidence-bound ablation chart | S1.2 |
-| 9 | Combinatorial problem, early spending and revision | S2.1, S2.2 |
-| 10 | Four saved normalized pseudo-regret checkpoints | S2.2 |
-| 11 | Combinatorial regret, utility and spend table | S2.2 |
-| 12 | Confidence/cost ablation chart and early spend | S2.3 |
-| 13 | Primal-dual decision and calibrated rate formulas | S3.1 |
-| 14 | Primal-dual main comparison table | S3.2 |
-| 15 | Guard ablation table | S3.3 |
-| 16 | Primal-dual horizon sweep chart | S3.4 |
-| 17 | Segmented-market setup and expected oracles | S4.1 |
-| 18 | UCB window, spending control and primal-dual changes | S4.1 |
-| 19 | Local-oracle gap chart and recorded SEM | S4.2 |
-| 20 | Window/spend tables and CUSUM reset diagnostics | S4.2, S4.3, S4.4 |
-| 21 | Supported findings and interpretation limits | S1.2, S2.3, S3.3, S3.4, S4.3, S4.4 |
-| 22 | Repository, pinned evidence and source index | Links to the source commit and this document; no additional result |
+| 4 | Configurations and paired comparisons | G2, S1.1, S2.1, S3.1, S4.1 |
+| 5 | Single-campaign problem, baseline and revision | S1.1 |
+| 6 | Single-campaign regret, SEM, spend and utility share | S1.1 |
+| 7 | Combinatorial problem, conflict graph and revision | S2.1, S2.2 |
+| 8 | Four saved normalized pseudo-regret checkpoints | S2.2 |
+| 9 | Combinatorial regret, utility and spend | S2.2 |
+| 10 | Primal-dual decision and calibrated rates | S3.1 |
+| 11 | Primal-dual main comparison | S3.2 |
+| 12 | Segmented-market setup and expected oracles | S4.1 |
+| 13 | UCB window, spending control and primal-dual changes | S4.1 |
+| 14 | Local-oracle gaps and recorded SEM | S4.2 |
+| 15 | Supported findings and interpretation limits | S1.2, S2.3, S3.2, S3.3, S3.4, S4.3, S4.4 |
+| 16 | Repository, notebook key and evidence reference | Source commit and this document; no additional result |
+| 17 | Appendix divider | Navigation to A1–A6; no additional result |
+| 18 · A1 | Benchmark and metric distinctions | G1, S3.1, S4.1 |
+| 19 · A2 | Single-campaign confidence-bound ablation | S1.2 |
+| 20 · A3 | Combinatorial confidence/cost ablations and early spend | S2.3 |
+| 21 · A4 | Primal-dual guard ablation | S3.3 |
+| 22 · A5 | Primal-dual horizon sweep | S3.4 |
+| 23 · A6 | Window/spend comparisons and CUSUM reset diagnostics | S4.2, S4.3, S4.4 |
 
-## Recommended charts, precision and metric definitions
+## Figures, precision and metric definitions
 
-The draft recommends summary charts for slides 8, 10, 12, 16 and 19. For slide 8, use the saved Stage 1 ablation means. For slide 12, use the one-decimal printed Stage 2 ablation means. For slide 19, use the six saved local-gap means and their saved SEM. All numerical inputs are available in the JSON snapshot. These recommendations make no claim about the chart types or editability of the existing PowerPoint.
+The graphical comparisons summarize saved numerical values: slide 6 uses the Stage 1 main means and SEM; slide 11 uses the Stage 3 main normalized pseudo-regret; slide 14 uses the six Stage 4 local-gap means and saved SEM; appendix slides 19, 20 and 23 show the confidence-bound, cost and window comparisons. Their numerical inputs are available in the JSON snapshot. The figures on slides 8 and 22 are raster summary plots; their recorded points are specified below.
 
-For proposed slide 10, join only four recorded checkpoints at rounds 750, 1,500, 2,250 and 3,000. The baseline values are `[0.0385, -0.0033, 0.0819, 0.1984]`; the revised values are `[0.0500, 0.0349, 0.0275, 0.0234]`. Any connecting lines should guide the eye between these checkpoints. They must not be presented as reconstructed simulation trajectories or intermediate observations.
+Slide 8 joins four recorded checkpoints at rounds 750, 1,500, 2,250 and 3,000. The baseline values are `[0.0385, -0.0033, 0.0819, 0.1984]`; the revised values are `[0.0500, 0.0349, 0.0275, 0.0234]`. Straight connecting lines guide the eye between these checkpoints. They do not reconstruct complete simulation trajectories or introduce intermediate observations. Numerical SEM summaries were not saved for this table, and the figure has no error bands. The negative partial-horizon value is retained: the comparator is an average-cost LP rather than a pathwise optimum at each round.
 
-For proposed slide 16, use a scatter chart with markers at the actual nine tested horizons: `[100, 200, 300, 500, 800, 1200, 1600, 2400, 3000]`. Its inputs should be the two saved four-decimal normalized pseudo-regret series in `stage3.horizon_sweep`. B/T is held fixed and each horizon uses eight trials. Connecting lines would not establish an asymptotic rate; the nonstationary series has a small increase between the first two horizons.
+Slide 22 places markers at the actual nine tested horizons: `[100, 200, 300, 500, 800, 1200, 1600, 2400, 3000]`. It uses the two saved four-decimal normalized pseudo-regret series in `stage3.horizon_sweep`, on a numerical horizon axis. B/T is held fixed at 700/3,000 and each horizon uses eight trials. Connecting lines do not establish an asymptotic rate; the nonstationary series has a small increase between the first two horizons.
 
 The benchmarks and reported measures are checked against the notebook implementations:
 
@@ -86,6 +87,8 @@ The benchmarks and reported measures are checked against the notebook implementa
 
 The average LP caps and the hard realized budget are distinct: affordability filters or guards enforce the latter. Configurations, seeds and feedback are preserved in the snapshot and the [scenario READMEs](../notebooks/README.md).
 
-Saved Stage 1 main tables provide six-decimal regret and numerical SEM; two decimals are recommended for the draft slide labels. Stage 2 main tables retain their saved precision, while its ablations are available only as one-decimal printed means. Stage 3 main and guard comparisons store normalized regret to three decimals and reward/spend to one decimal; the horizon series stores four decimals. Stage 4 main tables store means and SEM to two decimals, while its window ablation stores one-decimal means and its printed oracle totals one decimal. Full-precision trial arrays are unavailable. The draft should preserve these precision limits and omit SEM or confidence intervals where numerical summaries were not saved.
+Stage 1 retains the fixed LP cap and a cost LCB after the KL revision; dynamic pacing and empirical LP costs enter in Stage 2. Both original Stage 1 agents stop below remaining budget 1, while the revision filters individual bids. The Stage 2 baseline stops below the worst-case round payment of 1.8; the revision filters affordable super-actions and updates its spending rate. Main comparisons share market realizations and corresponding learner seeds. The Stage 1 bound ablation reuses the main KL runs, while the Stage 3 guard ablation has eight trials rather than the main ten. These distinctions are preserved in the source snapshot.
 
-The [documentation audit](documentation-audit.md) records the correction from the old Stage 2 value near 72 to the saved 70.054544, other reconciled values, and unsupported historical claims omitted from the revision.
+Saved Stage 1 main tables provide six-decimal regret and numerical SEM, rounded to two decimals in slide 6. Stage 2 main tables retain their saved precision in the snapshot, while its ablations are available only as one-decimal printed means. Stage 3 main and guard comparisons store normalized regret to three decimals and reward/spend to one decimal; the horizon series stores four decimals. Stage 4 main tables store means and SEM to two decimals, while its window ablation stores one-decimal means and its printed oracle totals one decimal. Full-precision trial arrays are unavailable. No additional precision or SEM is inferred where numerical summaries were not saved. Displayed SEM is a sample standard error, not a confidence interval; the one-decimal oracle totals must not be used to reconstruct exact gaps.
+
+The [documentation audit](documentation-audit.md) explains the numerical reconciliation to the saved Stage 2 result of 70.054544, other corrected values, and the interpretation limits applied throughout.

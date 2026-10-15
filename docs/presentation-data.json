@@ -1,7 +1,7 @@
 {
   "source_commit": "38a050b32a6bd757c0c2c4db18c029caa039e919",
   "cell_indexing": "zero-based",
-  "policy": "Saved output precision. Data transcribed for proposed summary charts; no experiment execution.",
+  "policy": "Saved output precision. Data transcribed from recorded notebook outputs for the presentation tables and figures; no experiment execution.",
   "stage1": {
     "baseline_notebook": "notebooks/01_single_campaign/baseline_ucb.ipynb",
     "improved_notebook": "notebooks/01_single_campaign/budget_aware_kl_ucb.ipynb",
